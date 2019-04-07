@@ -24,68 +24,59 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        final AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent notifyIntent = new Intent(this, AlarmReceiver.class);
-
-        final PendingIntent notifyPendingIntent = PendingIntent.getBroadcast
-                (this, NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
         mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
         ToggleButton alarmToggle = findViewById(R.id.alarmToggle);
 
+        Intent notifyIntent = new Intent(this, AlarmReceiver.class);
+
         boolean alarmUp = (PendingIntent.getBroadcast(this, NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_NO_CREATE) != null);
         alarmToggle.setChecked(alarmUp);
 
-        alarmToggle.setOnCheckedChangeListener(
-                new CompoundButton.OnCheckedChangeListener() {
+        final PendingIntent notifyPendingIntent = PendingIntent.getBroadcast(this, NOTIFICATION_ID, notifyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        final AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+
+        alarmToggle.setOnCheckedChangeListener
+                (new CompoundButton.OnCheckedChangeListener() {
                     @Override
-                    public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                    public void onCheckedChanged
+                            (CompoundButton buttonView, boolean isChecked) {
                         String toastMessage;
                         if (isChecked) {
 
                             long repeatInterval = AlarmManager.INTERVAL_FIFTEEN_MINUTES;
 
-                            long triggerTime = SystemClock.elapsedRealtime()
-                                    + repeatInterval;
+                            long triggerTime = SystemClock.elapsedRealtime() + repeatInterval;
 
-                            // If the Toggle is turned on, set the repeating alarm with
-                            // a 15 minute interval.
                             if (alarmManager != null) {
                                 alarmManager.setInexactRepeating
                                         (AlarmManager.ELAPSED_REALTIME_WAKEUP,
                                                 triggerTime, repeatInterval,
                                                 notifyPendingIntent);
                             }
-                            // Set the toast message for the "on" case.
                             toastMessage = getString(R.string.alarm_on_toast);
 
-                        } else {
-                            // Cancel notification if the alarm is turned off.
+                        }else{
                             mNotificationManager.cancelAll();
 
                             if (alarmManager != null) {
                                 alarmManager.cancel(notifyPendingIntent);
                             }
-                            // Set the toast message for the "off" case.
                             toastMessage = getString(R.string.alarm_off_toast);
 
                         }
-                        Toast.makeText(MainActivity.this, toastMessage,Toast.LENGTH_SHORT)
-                                .show();
-
+                        Toast.makeText(MainActivity.this, toastMessage, Toast.LENGTH_SHORT).show();
                     }
                 });
+        createNotificationChannel();
     }
 
     public void createNotificationChannel() {
-
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel
-                    (PRIMARY_CHANNEL_ID,"Stand up notification", NotificationManager.IMPORTANCE_HIGH);
-
+            NotificationChannel notificationChannel = new NotificationChannel(PRIMARY_CHANNEL_ID, "Stand up notification", NotificationManager.IMPORTANCE_HIGH);
             notificationChannel.enableLights(true);
             notificationChannel.setLightColor(Color.RED);
             notificationChannel.enableVibration(true);

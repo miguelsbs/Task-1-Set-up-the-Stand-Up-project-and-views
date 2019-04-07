@@ -15,20 +15,16 @@ public class AlarmReceiver {
     private void deliverNotification(Context context) {
         Intent contentIntent = new Intent(context, MainActivity.class);
 
-        PendingIntent contentPendingIntent = PendingIntent.getActivity
-                (context, NOTIFICATION_ID, contentIntent, PendingIntent
-                        .FLAG_UPDATE_CURRENT);
+        PendingIntent contentPendingIntent = PendingIntent.getActivity(context, NOTIFICATION_ID, contentIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Builder builder = new NotificationCompat.Builder
                 (context, PRIMARY_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_stand_up)
-                .setContentTitle("Stand Up Alert")
-                .setContentText("You should stand up and walk around now!")
+                .setContentTitle(context.getString(R.string.notification_title))
+                .setContentText(context.getString(R.string.notification_text))
                 .setContentIntent(contentPendingIntent)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL);
-
-        // Deliver the notification
         mNotificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 }
